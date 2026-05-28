@@ -9,7 +9,7 @@ export function Footer() {
         <div>
           <p className="text-[9px] tracking-[0.45em] uppercase text-[#c9a84c] mb-3">Sunatra</p>
           <p className="font-serif font-light italic text-[#f0ebe0]/30 text-2xl md:text-3xl leading-tight">
-            Sound and image,<br />built from Nairobi.
+            Sounds from Kajiado.<br />Still working the rest out.
           </p>
         </div>
 
@@ -18,12 +18,13 @@ export function Footer() {
           {[
             { href: "/music", label: "Music" },
             { href: "/photos", label: "Photos" },
-            { href: "/favorites", label: "Inspiration" },
+            { href: "/favorites", label: "Faves" },
+            { href: "/about", label: "About" },
           ].map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="text-[9px] tracking-[0.35em] uppercase text-[#333330] hover:text-[#c9a84c] transition-colors duration-200"
+              className="text-[9px] tracking-[0.35em] uppercase text-[#777770] hover:text-[#c9a84c] transition-colors duration-200"
             >
               {l.label}
             </Link>
@@ -33,7 +34,7 @@ export function Footer() {
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-[#0c0c0c] pt-6">
         <p className="text-[9px] tracking-[0.3em] uppercase text-[#222220]">
-          Music · Design · Photography
+          Sound · Image · Build · Whatever comes next
         </p>
         <p className="text-[9px] tracking-[0.3em] uppercase text-[#222220]">
           &copy; {new Date().getFullYear()} Sunatra

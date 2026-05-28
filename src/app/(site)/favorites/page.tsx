@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { IFavoriteTrack, IColorPalette, IColorSwatch } from "@/types";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Favorites" };
+export const metadata: Metadata = { title: "Faves" };
 
 async function getData() {
   try {
@@ -31,7 +31,7 @@ export default async function FavoritesPage() {
           className="font-serif font-light text-[#f0ebe0] italic leading-[0.88] mb-4"
           style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
         >
-          Favorites
+          Faves
         </h1>
         <p className="font-serif italic text-[#555550] text-base md:text-lg">
           What I&apos;m listening to. What I keep coming back to.

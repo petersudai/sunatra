@@ -27,7 +27,7 @@ export default async function PhotosPage() {
           className="font-serif font-light text-[#f0ebe0] italic leading-[0.88] mb-4"
           style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
         >
-          The Image
+          Scenes
         </h1>
         <p className="font-serif italic text-[#555550] text-base md:text-lg">
           Nairobi and beyond. Coast, city, and the quiet in between.

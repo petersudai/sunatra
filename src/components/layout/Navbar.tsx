@@ -9,6 +9,7 @@ const links = [
   { href: "/music", label: "Music" },
   { href: "/photos", label: "Photos" },
   { href: "/favorites", label: "Faves" },
+  { href: "/about", label: "About" },
 ];
 
 export function Navbar() {
@@ -31,7 +32,7 @@ export function Navbar() {
           "mx-auto px-8 md:px-14 h-14 flex items-center justify-between transition-all duration-500 border-b",
           scrolled
             ? "bg-[#080808]/85 backdrop-blur-md border-[#141412]"
-            : "bg-transparent border-transparent"
+            : "bg-[#080808]/25 border-transparent"
         )}
       >
         {/* Logo */}
@@ -50,9 +51,9 @@ export function Navbar() {
                 href={l.href}
                 className={cn(
                   "text-[10px] tracking-[0.3em] uppercase transition-colors duration-300",
-                  pathname === l.href || pathname.startsWith(l.href + "/")
-                    ? "text-[#c9a84c]"
-                    : "text-[#555550] hover:text-[#f0ebe0]"
+                  l.href === "/music" || pathname === l.href || pathname.startsWith(l.href + "/")
+                    ? "text-[#c9a84c] hover:text-[#e2c278]"
+                    : "text-[#aaaaaa] hover:text-[#f0ebe0]"
                 )}
               >
                 {l.label}

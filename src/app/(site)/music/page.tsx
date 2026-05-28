@@ -29,7 +29,7 @@ export default async function MusicPage() {
       <div className="mb-14">
         <p className="text-[9px] tracking-[0.45em] uppercase text-[#444440] mb-5">Music</p>
         <h1
-          className="font-serif font-light text-[#f0ebe0] leading-[0.88] mb-4"
+          className="font-serif font-light text-[#f0ebe0] italic leading-[0.88] mb-4"
           style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
         >
           The Work

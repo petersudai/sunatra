@@ -20,31 +20,9 @@ async function getData() {
   }
 }
 
-/* Ticker words — no craft labels, just identity */
-const TICKER_ITEMS = [
-  "SUNATRA", "SOUND", "IMAGE", "CODE", "NAIROBI", "AFROFUTURIST",
-  "EST 2020", "WILDERNESS", "BUILDER", "EXPLORER", "CURIOUS",
-  "SUNATRA", "SOUND", "IMAGE", "CODE", "NAIROBI", "AFROFUTURIST",
-  "EST 2020", "WILDERNESS", "BUILDER", "EXPLORER", "CURIOUS",
-];
-
-/* Broad pillars — not a job listing */
-const PILLARS = [
-  {
-    id: "01",
-    title: "Sound",
-    desc: "Production, performance, and the architecture of feeling. From the studio to the dancefloor — every frequency welcome.",
-  },
-  {
-    id: "02",
-    title: "Image",
-    desc: "Light, landscape, and the stories that live in a single frame. Kenya and beyond — coast, city, wilderness.",
-  },
-  {
-    id: "03",
-    title: "Build",
-    desc: "Code, systems, products, and the craft of making ideas real. From backend to brand — whatever the idea demands.",
-  },
+/* Single set — rendered ×2 in JSX for a gapless loop */
+const TICKER_BASE = [
+  "SUNATRA", "SOUND", "KENYA", "KAJIADO", "WILDERNESS", "BUILDER", "EXPLORER", "CURIOUS",
 ];
 
 /* Static waveform bars */
@@ -94,43 +72,61 @@ export default async function HomePage() {
         />
         {/* 3. Bottom fade to page */}
         <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-[#080808] to-transparent" />
+        {/* 4. Mobile darkening — left-to-right gradient thins out on narrow screens */}
+        <div className="absolute inset-0 md:hidden bg-[#080808]/35" />
 
-        {/* Mobile avatar — above the name */}
-        <div className="absolute top-28 left-1/2 -translate-x-1/2 lg:hidden z-10">
-          <div
-            className="avatar-float avatar-glow relative w-28 h-28 rounded-full overflow-hidden"
-          >
+        {/* Mobile avatar — sits in upper portion, clear of the text block */}
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 lg:hidden z-10">
+          <div className="avatar-float avatar-glow relative w-28 h-28 rounded-full overflow-hidden opacity-60">
             <Image
               src="/images/maastronaut.jpg"
               alt="Sunatra"
               fill
               className="object-cover object-[50%_12%]"
             />
-            {/* Edge vignette */}
             <div
               className="absolute inset-0 rounded-full"
-              style={{
-                background:
-                  "radial-gradient(ellipse at center, transparent 48%, rgba(8,8,8,0.55) 100%)",
-              }}
+              style={{ background: "radial-gradient(ellipse at center, transparent 48%, rgba(8,8,8,0.55) 100%)" }}
             />
           </div>
         </div>
 
-        {/* Text — left-anchored, vertically centered */}
-        <div className="relative z-10 px-8 md:px-14 max-w-2xl mt-20 md:mt-0">
+        {/* Text — left-anchored, vertically centered; offset down on mobile to clear avatar */}
+        <div className="relative z-10 px-8 md:px-14 max-w-2xl mt-36 md:mt-0">
           <div className="hero-line h-px bg-[#c9a84c] mb-10" style={{ width: "3rem" }} />
 
           <h1
             className="hero-name font-serif font-light text-[#f0ebe0] leading-[0.88] tracking-[-0.025em] mb-8"
-            style={{ fontSize: "clamp(4.5rem, 11vw, 11rem)" }}
+            style={{
+              fontSize: "clamp(4rem, 11vw, 11rem)",
+              textShadow: "0 2px 32px rgba(0,0,0,0.7)",
+            }}
           >
             SUNATRA
           </h1>
 
           <p className="hero-meta text-[10px] tracking-[0.45em] uppercase text-[#888880]">
-            Nairobi, Kenya
+            Kajiado, Kenya
           </p>
+
+          {/* Play pill — always visible; shows top track title once content is uploaded */}
+          <Link
+            href="/music"
+            className="hero-disc inline-flex items-center gap-3 mt-8 pl-4 pr-5 py-2.5
+                       bg-[#c9a84c]/[0.07] border border-[#c9a84c]/20
+                       hover:bg-[#c9a84c]/[0.13] hover:border-[#c9a84c]/45
+                       transition-all duration-300 group"
+          >
+            <span
+              className="w-5 h-5 rounded-full border border-[#c9a84c]/40 flex items-center justify-center shrink-0
+                         group-hover:border-[#c9a84c]/80 group-hover:bg-[#c9a84c]/10 transition-all duration-300"
+            >
+              <span className="text-[#c9a84c] text-[8px] ml-[1px] leading-none">▶</span>
+            </span>
+            <span className="text-[9px] tracking-[0.32em] uppercase text-[#888880] group-hover:text-[#f0ebe0] transition-colors duration-300">
+              {featuredTracks[0]?.title ?? "Listen"}
+            </span>
+          </Link>
         </div>
 
         {/* Desktop avatar — right zone, well clear of the SUNATRA text */}
@@ -138,22 +134,16 @@ export default async function HomePage() {
           className="absolute hidden lg:block z-10"
           style={{ right: "12%", top: "50%", transform: "translateY(-50%)" }}
         >
-          <div
-            className="avatar-float avatar-glow relative w-[200px] h-[200px] xl:w-[240px] xl:h-[240px] rounded-full overflow-hidden"
-          >
+          <div className="avatar-float avatar-glow relative w-[200px] h-[200px] xl:w-[240px] xl:h-[240px] rounded-full overflow-hidden opacity-60">
             <Image
               src="/images/maastronaut.jpg"
               alt="Sunatra"
               fill
               className="object-cover object-[50%_12%]"
             />
-            {/* Edge vignette — blends avatar into landscape */}
             <div
               className="absolute inset-0 rounded-full"
-              style={{
-                background:
-                  "radial-gradient(ellipse at center, transparent 50%, rgba(8,8,8,0.5) 100%)",
-              }}
+              style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(8,8,8,0.5) 100%)" }}
             />
           </div>
         </div>
@@ -167,9 +157,10 @@ export default async function HomePage() {
       </section>
 
       {/* ── Marquee ──────────────────────────────────────────── */}
-      <div className="border-y border-[#0f0f0f] py-3.5 bg-[#080808]" style={{ overflow: "hidden" }}>
+      {/* Single set rendered ×2 in JSX for a gapless loop */}
+      <div className="border-y border-[#0f0f0f] py-3.5 bg-[#080808] overflow-hidden">
         <div className="animate-marquee">
-          {TICKER_ITEMS.map((item, i) => (
+          {[...TICKER_BASE, ...TICKER_BASE].map((item, i) => (
             <span
               key={i}
               style={{ display: "inline-flex", alignItems: "center", gap: "24px", padding: "0 24px" }}
@@ -183,44 +174,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── Manifesto ────────────────────────────────────────── */}
-      <section className="px-8 md:px-14 py-24 md:py-36">
-        <div className="max-w-5xl">
-
-          <Reveal>
-            <p
-              className="font-serif font-light text-[#f0ebe0] leading-[0.92] mb-16"
-              style={{ fontSize: "clamp(2.5rem, 5.5vw, 5.5rem)" }}
-            >
-              Sound and image,<br />built from Nairobi.
-            </p>
-          </Reveal>
-
-          <div className="grid md:grid-cols-3 gap-8 border-t border-[#111] pt-10">
-            {PILLARS.map(({ id, title, desc }, i) => (
-              <Reveal key={id} delay={(i + 1) as 1 | 2 | 3}>
-                <div className="border-l border-[#1c1c1a] pl-5">
-                  <p className="text-[9px] tracking-[0.4em] uppercase text-[#c9a84c] mb-3">{id}</p>
-                  <h3 className="text-[#f0ebe0] text-[11px] font-medium tracking-[0.15em] uppercase mb-3">
-                    {title}
-                  </h3>
-                  <p className="text-[#555550] text-[11px] leading-relaxed">{desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* Openness signal */}
-          <Reveal delay={4}>
-            <p className="text-[9px] tracking-[0.3em] uppercase text-[#252523] mt-10">
-              And whatever else curiosity demands.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
       {/* ── Work teasers ─────────────────────────────────────── */}
-      <div className="grid md:grid-cols-2 border-t border-[#0f0f0f]">
+      <div className="grid md:grid-cols-[3fr_2fr] border-t border-[#0f0f0f]">
 
         {/* Music panel */}
         <Link
@@ -233,15 +188,10 @@ export default async function HomePage() {
               <div
                 key={i}
                 className="wave-bar rounded-sm bg-[#c9a84c]"
-                style={{
-                  width: "4px",
-                  height: `${h}%`,
-                  animationDelay: `${(i % 10) * 0.15}s`,
-                }}
+                style={{ width: "4px", height: `${h}%`, animationDelay: `${(i % 10) * 0.15}s` }}
               />
             ))}
           </div>
-          {/* Brighter on hover */}
           <div className="absolute inset-0 bg-[#c9a84c] opacity-0 group-hover:opacity-[0.02] transition-opacity duration-700" />
 
           <div className="relative z-10">
@@ -250,7 +200,7 @@ export default async function HomePage() {
               className="font-serif font-light text-[#f0ebe0] leading-[0.9] mb-5"
               style={{ fontSize: "clamp(2.5rem, 4.5vw, 4rem)" }}
             >
-              The Sound
+              Sounds
             </h2>
             <span className="text-[9px] tracking-[0.35em] uppercase text-[#3a3a38] group-hover:text-[#c9a84c] transition-colors duration-300">
               Listen →
@@ -277,7 +227,7 @@ export default async function HomePage() {
               className="font-serif font-light text-[#f0ebe0] leading-[0.9] mb-5"
               style={{ fontSize: "clamp(2.5rem, 4.5vw, 4rem)" }}
             >
-              The Image
+              Scenes
             </h2>
             <span className="text-[9px] tracking-[0.35em] uppercase text-[#888880] group-hover:text-[#f0ebe0] transition-colors duration-300">
               View →
@@ -336,7 +286,7 @@ export default async function HomePage() {
                   className="font-serif font-light text-[#f0ebe0]"
                   style={{ fontSize: "clamp(1.75rem, 4vw, 3.5rem)" }}
                 >
-                  Photography
+                  Scenes
                 </h2>
               </div>
               <Link
@@ -373,40 +323,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ── Closing CTA ──────────────────────────────────────── */}
-      <section className="border-t border-[#0f0f0f] px-8 md:px-14 py-16 md:py-24">
-        <Reveal>
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
-            <div>
-              <p
-                className="font-serif font-light italic text-[#f0ebe0]/[0.18] leading-[0.9] select-none mb-5"
-                style={{ fontSize: "clamp(2.5rem, 5.5vw, 5rem)" }}
-              >
-                Available for<br />collaboration.
-              </p>
-              <p className="text-[9px] tracking-[0.35em] uppercase text-[#2e2e2c]">
-                Sound · Image · Code · Whatever comes next.
-              </p>
-            </div>
-            <nav className="flex flex-col gap-3 items-start md:items-end">
-              {[
-                { href: "/music", label: "Music" },
-                { href: "/photos", label: "Photos" },
-                { href: "/favorites", label: "Inspiration" },
-              ].map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="text-[9px] tracking-[0.35em] uppercase text-[#2e2e2c] hover:text-[#c9a84c] transition-colors"
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </Reveal>
-      </section>
 
     </div>
   );
