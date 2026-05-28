@@ -53,7 +53,7 @@ export default function AboutPage() {
             alt=""
             fill
             priority
-            className="object-cover object-center hero-ken-burns brightness-[0.58]"
+            className="object-cover object-[50%_35%] hero-ken-burns brightness-[0.58]"
           />
         </div>
 

@@ -46,11 +46,11 @@ export default async function HomePage() {
           style={{ top: "-18%" }}
         >
           <Image
-            src="/images/wilderness-tree.jpg"
+            src="/images/savanna-hill.jpg"
             alt=""
             fill
             priority
-            className="object-cover object-[62%_45%] hero-ken-burns brightness-[0.72]"
+            className="object-cover object-[50%_30%] hero-ken-burns brightness-[0.72]"
           />
         </div>
 
@@ -184,7 +184,7 @@ export default async function HomePage() {
         >
           {/* Background image */}
           <Image
-            src="/images/diani-dawn.jpg"
+            src="/images/wilderness-tree.jpg"
             alt=""
             fill
             className="object-cover object-center brightness-[0.28] group-hover:brightness-[0.38] group-hover:scale-105 transition-all duration-700"
