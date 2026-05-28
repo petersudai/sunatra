@@ -127,7 +127,10 @@
 .hero-ken-burns {
   animation: kenBurns 26s ease-in-out infinite alternate;
   transform-origin: center 40%;
-  will-change: transform;
+  /* backface-visibility stops mobile GPU compositing blurring the image
+     when nested inside another transformed layer */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* ── CSS Parallax (scroll-driven, progressive) ────────── */
@@ -141,6 +144,15 @@
     animation-timeline: scroll(root);
     animation-range: 0 100vh;
     will-change: transform;
+  }
+  /* Disable parallax on mobile — two concurrent GPU-composited layers
+     (parallax + ken-burns + brightness filter) cause blurry rendering on
+     mobile GPUs. Ken-Burns alone is enough motion on small screens. */
+  @media (max-width: 768px) {
+    .hero-parallax {
+      animation: none;
+      will-change: auto;
+    }
   }
 }
 

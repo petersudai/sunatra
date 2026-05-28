@@ -50,6 +50,7 @@ export default async function HomePage() {
             alt=""
             fill
             priority
+            sizes="100vw"
             className="object-cover object-[50%_30%] hero-ken-burns brightness-[0.72]"
           />
         </div>
