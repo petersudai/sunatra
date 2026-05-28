@@ -54,8 +54,11 @@ export default function AboutPage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_35%] hero-ken-burns brightness-[0.58]"
+            className="object-cover object-[50%_35%] hero-ken-burns"
           />
+          {/* Dark overlay replaces brightness-[0.58] — avoids filter+transform
+              GPU compositing blur on mobile (mathematically identical result) */}
+          <div className="absolute inset-0 bg-black/[0.42]" />
         </div>
 
         {/* Gradient: strong bottom fade, veil across top */}

@@ -127,10 +127,14 @@
 .hero-ken-burns {
   animation: kenBurns 26s ease-in-out infinite alternate;
   transform-origin: center 40%;
-  /* backface-visibility stops mobile GPU compositing blurring the image
-     when nested inside another transformed layer */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+/* Disable ken-burns on mobile — CSS transform animation + any filter
+   creates two compositor layers that mobile GPUs rasterise at 1× then
+   scale up, producing visible blur. Static image is sharp. */
+@media (max-width: 768px) {
+  .hero-ken-burns { animation: none; }
 }
 
 /* ── CSS Parallax (scroll-driven, progressive) ────────── */

@@ -51,8 +51,11 @@ export default async function HomePage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_30%] hero-ken-burns brightness-[0.72]"
+            className="object-cover object-[50%_30%] hero-ken-burns"
           />
+          {/* Dark overlay replaces brightness-[0.72] — avoids filter+transform
+              GPU compositing blur on mobile (mathematically identical result) */}
+          <div className="absolute inset-0 bg-black/[0.28]" />
         </div>
 
         {/* Gradient layers */}
