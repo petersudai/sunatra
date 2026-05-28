@@ -5,12 +5,9 @@ export function Footer() {
     <footer className="border-t border-[#0f0f0f] px-8 md:px-14 pt-14 pb-10">
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-12">
 
-        {/* Left — statement */}
+        {/* Left — statement (placeholder, populate later) */}
         <div>
-          <p className="text-[9px] tracking-[0.45em] uppercase text-[#c9a84c] mb-3">Sunatra</p>
-          <p className="font-serif font-light italic text-[#f0ebe0]/30 text-2xl md:text-3xl leading-tight">
-            Sounds from Kajiado.<br />Still working the rest out.
-          </p>
+          <p className="text-[9px] tracking-[0.45em] uppercase text-[#c9a84c]">Sunatra</p>
         </div>
 
         {/* Right — nav */}

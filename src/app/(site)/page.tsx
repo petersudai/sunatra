@@ -182,7 +182,16 @@ export default async function HomePage() {
           href="/music"
           className="group relative flex items-end p-10 md:p-14 h-80 md:h-[28rem] overflow-hidden border-b md:border-b-0 md:border-r border-[#0f0f0f] bg-[#050505]"
         >
-          {/* Breathing waveform */}
+          {/* Background image */}
+          <Image
+            src="/images/diani-dawn.jpg"
+            alt=""
+            fill
+            className="object-cover object-center brightness-[0.28] group-hover:brightness-[0.38] group-hover:scale-105 transition-all duration-700"
+          />
+          {/* Bottom gradient so text stays legible */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent" />
+          {/* Breathing waveform — layered on top of image */}
           <div className="absolute inset-0 flex items-center justify-center gap-[3px] pointer-events-none">
             {WAVE.map((h, i) => (
               <div
@@ -192,7 +201,7 @@ export default async function HomePage() {
               />
             ))}
           </div>
-          <div className="absolute inset-0 bg-[#c9a84c] opacity-0 group-hover:opacity-[0.02] transition-opacity duration-700" />
+          <div className="absolute inset-0 bg-[#c9a84c] opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
 
           <div className="relative z-10">
             <p className="text-[9px] tracking-[0.45em] uppercase text-[#c9a84c] mb-4">01 · Music</p>
