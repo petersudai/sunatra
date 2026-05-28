@@ -7,6 +7,43 @@ import type { ITrack } from "@/types";
 type TrackType = "exclusive" | "released" | "mix";
 type Platform = "spotify" | "soundcloud" | "mixcloud";
 
+/* Converts any share/track URL → the correct iframe embed URL */
+function normaliseEmbedUrl(url: string, platform: Platform | ""): string {
+  if (!url || !platform) return url;
+
+  if (platform === "spotify") {
+    if (url.includes("/embed/")) {
+      const sep = url.includes("?") ? "&" : "?";
+      return url.includes("theme=") ? url : url + sep + "theme=0";
+    }
+    const match = url.match(
+      /spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/
+    );
+    if (match) {
+      return `https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`;
+    }
+  }
+
+  if (platform === "soundcloud") {
+    if (url.includes("w.soundcloud.com")) return url;
+    const clean = url.split("?")[0];
+    return (
+      `https://w.soundcloud.com/player/?url=${encodeURIComponent(clean)}` +
+      `&color=%23c9a84c&auto_play=false&hide_related=true` +
+      `&show_comments=false&show_user=true&show_reposts=false&visual=true`
+    );
+  }
+
+  if (platform === "mixcloud") {
+    if (url.includes("widget")) return url;
+    const match = url.match(/mixcloud\.com(\/.+)/);
+    const feed = match ? match[1] : url;
+    return `https://www.mixcloud.com/widget/iframe/?hide_cover=1&autoplay=0&feed=${encodeURIComponent(feed)}`;
+  }
+
+  return url;
+}
+
 const emptyForm = {
   title: "",
   artist: "Sunatra",
@@ -145,9 +182,19 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
               <input
                 value={form.embedUrl}
                 onChange={(e) => setForm((f) => ({ ...f, embedUrl: e.target.value }))}
-                placeholder="https://open.spotify.com/embed/track/..."
+                onBlur={(e) => {
+                  // Auto-convert any share link → correct embed URL so the
+                  // web player loads instead of triggering the app deep-link
+                  const raw = e.target.value.trim();
+                  if (!raw || !form.platform) return;
+                  setForm((f) => ({ ...f, embedUrl: normaliseEmbedUrl(raw, f.platform) }));
+                }}
+                placeholder="Paste any Spotify / SoundCloud / Mixcloud link"
                 className={inputCls}
               />
+              <p className="text-[10px] text-[#444440] mt-1">
+                Paste any share link — it will be converted to the embed format automatically.
+              </p>
             </Field>
           </>
         )}
