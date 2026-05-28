@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("SUNATRA_DATABASE_URL")
+  directUrl = env("SUNATRA_DATABASE_URL_UNPOOLED")
+}
+
+model Track {
+  id          String    @id @default(cuid())
+  title       String
+  artist      String    @default("Sunatra")
+  type        TrackType
+  platform    Platform?
+  audioUrl    String?
+  embedUrl    String?
+  coverUrl    String?
+  duration    Int?
+  description String?
+  featured    Boolean   @default(false)
+  releaseDate DateTime?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("tracks")
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  category  String?
+  featured  Boolean  @default(false)
+  width     Int      @default(1200)
+  height    Int      @default(800)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("photos")
+}
+
+model FavoriteTrack {
+  id          String      @id @default(cuid())
+  title       String
+  artist      String
+  platform    FavPlatform @default(spotify)
+  embedUrl    String?
+  externalUrl String?
+  notes       String?
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("favorite_tracks")
+}
+
+model ColorPalette {
+  id        String   @id @default(cuid())
+  name      String
+  colors    Json
+  notes     String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("color_palettes")
+}
+
+enum TrackType {
+  exclusive
+  released
+  mix
+}
+
+enum Platform {
+  spotify
+  soundcloud
+  mixcloud
+}
+
+enum FavPlatform {
+  spotify
+  soundcloud
+  youtube
+  other
+}

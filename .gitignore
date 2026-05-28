@@ -1,0 +1,92 @@
+# ── Dependencies ─────────────────────────────────────
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ── Next.js build output ──────────────────────────────
+/.next/
+/out/
+/build
+
+# ── Environment & secrets ─────────────────────────────
+# .env.example is intentionally NOT gitignored — safe to commit (no real secrets, template only)
+.env
+.env.*
+.env*.local
+!.env.example
+# explicit variants in case the pattern above misses edge cases
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.staging
+.env.staging.local
+.env.production
+.env.production.local
+
+# ── Auth / key material ───────────────────────────────
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+secrets.json
+secrets.*.json
+
+# ── Claude Code / AI agent workspace ─────────────────
+# .claude/settings.json, launch.json, skills/ → safe to track
+# .claude/settings.local.json → local overrides, may contain tokens
+.claude/settings.local.json
+# .agents/ is an auto-generated Claude agent workspace — not project code
+.agents/
+
+# ── Brand assets (large originals, not for git) ───────
+# Web-optimised copies live in public/images/ and ARE tracked
+brand-assets/
+*.zip
+*.ai
+*.psd
+*.fig
+
+# ── IDE & editor files ────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# ── OS-generated ──────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── Debug & logs ─────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+
+# ── Testing ──────────────────────────────────────────
+/coverage
+
+# ── Prisma generated client ───────────────────────────
+# prisma/schema.prisma and prisma/migrations/ ARE tracked (intentional)
+# The generated client is auto-built by `prisma generate` at deploy time —
+# never commit it: it contains platform-specific binaries (.dll.node, .wasm)
+src/generated/
+prisma/generated/
+
+# ── Vercel ───────────────────────────────────────────
+.vercel
+
+# ── TypeScript ───────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts

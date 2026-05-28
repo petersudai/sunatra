@@ -1,0 +1,43 @@
+{
+  "name": "sunatra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "next": "^16.2.4",
+    "react": "^19",
+    "react-dom": "^19",
+    "@prisma/client": "^6.8.2",
+    "@prisma/adapter-neon": "^6.8.2",
+    "@neondatabase/serverless": "^0.10.4",
+    "next-auth": "^4",
+    "@vercel/blob": "^0.27.0",
+    "ws": "^8.18.0",
+    "bcryptjs": "^2.4.3",
+    "lucide-react": "^0.468.0",
+    "framer-motion": "^11.3.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/bcryptjs": "^2.4.6",
+    "prisma": "^6.8.2",
+    "tailwindcss": "^4",
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "^16.2.4"
+  }
+}
