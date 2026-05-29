@@ -130,7 +130,7 @@ export default async function HomePage() {
               <span className="text-[#c9a84c] text-[8px] ml-[1px] leading-none">▶</span>
             </span>
             <span className="text-[9px] tracking-[0.32em] uppercase text-[#888880] group-hover:text-[#f0ebe0] transition-colors duration-300">
-              {featuredTracks[0]?.title ?? "Listen"}
+              Listen
             </span>
           </Link>
         </div>
