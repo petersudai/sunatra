@@ -98,6 +98,7 @@ export function EmbedCard({ track }: { track: ITrack }) {
               src={track.coverUrl}
               alt={track.title}
               fill
+              sizes="72px"
               className="object-cover"
             />
           ) : (

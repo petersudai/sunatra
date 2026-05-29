@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

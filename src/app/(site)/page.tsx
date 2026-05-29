@@ -51,7 +51,7 @@ export default async function HomePage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_30%] hero-ken-burns"
+            className="object-cover object-[100%_85%] md:object-[50%_30%] hero-ken-burns"
           />
           {/* Dark overlay replaces brightness-[0.72] — avoids filter+transform
               GPU compositing blur on mobile (mathematically identical result) */}
@@ -86,6 +86,8 @@ export default async function HomePage() {
               src="/images/maastronaut.jpg"
               alt="Sunatra"
               fill
+              priority
+              sizes="112px"
               className="object-cover object-[50%_12%]"
             />
             <div
@@ -143,6 +145,8 @@ export default async function HomePage() {
               src="/images/maastronaut.jpg"
               alt="Sunatra"
               fill
+              priority
+              sizes="(min-width: 1280px) 240px, 200px"
               className="object-cover object-[50%_12%]"
             />
             <div
