@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Star, StarOff, Plus } from "lucide-react";
+import { Trash2, Star, StarOff, Plus, Pencil, X, Check } from "lucide-react";
 import type { ITrack } from "@/types";
 
 type TrackType = "exclusive" | "released" | "mix";
@@ -54,38 +54,48 @@ const emptyForm = {
   featured: false,
 };
 
+type FormShape = typeof emptyForm;
+
 export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
   const [tracks, setTracks] = useState(initialTracks);
+
+  /* ── Add form ── */
   const [form, setForm] = useState(emptyForm);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+
+  /* ── Edit state ── */
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<FormShape>(emptyForm);
+  const [editAudioFile, setEditAudioFile] = useState<File | null>(null);
+  const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  /* ─────────────── helpers ─────────────── */
   const uploadFile = async (file: File, folder: string) => {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("folder", folder);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     const data = await res.json();
-    if (!res.ok) throw new Error(data?.error ?? "Upload failed. Check BLOB_READ_WRITE_TOKEN in Vercel.");
+    if (!res.ok) throw new Error(data?.error ?? "Upload failed.");
     return data.url as string;
   };
 
+  /* ─────────────── add ─────────────── */
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
       const body: Record<string, unknown> = { ...form };
-
       if (form.type === "exclusive") {
         if (!audioFile) throw new Error("Please select an audio file.");
         body.audioUrl = await uploadFile(audioFile, "audio");
       }
-      if (coverFile) {
-        body.coverUrl = await uploadFile(coverFile, "covers");
-      }
+      if (coverFile) body.coverUrl = await uploadFile(coverFile, "covers");
 
       const res = await fetch("/api/tracks", {
         method: "POST",
@@ -105,6 +115,48 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
     }
   };
 
+  /* ─────────────── edit ─────────────── */
+  const startEdit = (track: ITrack) => {
+    setEditingId(track.id);
+    setEditForm({
+      title: track.title,
+      artist: track.artist ?? "Sunatra",
+      type: track.type as TrackType,
+      platform: (track.platform ?? "") as Platform | "",
+      embedUrl: track.embedUrl ?? "",
+      description: track.description ?? "",
+      featured: track.featured,
+    });
+    setEditAudioFile(null);
+    setEditCoverFile(null);
+    setError("");
+  };
+
+  const saveEdit = async (id: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const body: Record<string, unknown> = { ...editForm };
+      if (editAudioFile) body.audioUrl = await uploadFile(editAudioFile, "audio");
+      if (editCoverFile)  body.coverUrl = await uploadFile(editCoverFile, "covers");
+
+      const res = await fetch(`/api/tracks/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Failed to save.");
+      const updated = await res.json();
+      setTracks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      setEditingId(null);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ─────────────── other actions ─────────────── */
   const remove = async (id: string) => {
     await fetch(`/api/tracks/${id}`, { method: "DELETE" });
     setTracks((prev) => prev.filter((t) => t.id !== id));
@@ -120,35 +172,22 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
     setTracks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   };
 
+  /* ─────────────── render ─────────────── */
   return (
     <div className="grid lg:grid-cols-2 gap-10">
-      {/* Form */}
+
+      {/* ── Add form ── */}
       <form onSubmit={submit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-6 space-y-4">
         <h2 className="font-serif text-lg text-[#f5f0e8] mb-2">Add track</h2>
 
         <Field label="Title">
-          <input
-            value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            required
-            className={inputCls}
-          />
+          <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required className={inputCls} />
         </Field>
-
         <Field label="Artist">
-          <input
-            value={form.artist}
-            onChange={(e) => setForm((f) => ({ ...f, artist: e.target.value }))}
-            className={inputCls}
-          />
+          <input value={form.artist} onChange={(e) => setForm((f) => ({ ...f, artist: e.target.value }))} className={inputCls} />
         </Field>
-
         <Field label="Type">
-          <select
-            value={form.type}
-            onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TrackType, platform: "" }))}
-            className={inputCls}
-          >
+          <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TrackType, platform: "" }))} className={inputCls}>
             <option value="exclusive">Exclusive (upload)</option>
             <option value="released">Released (embed)</option>
             <option value="mix">Mix (Mixcloud)</option>
@@ -157,21 +196,12 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
 
         {form.type === "exclusive" ? (
           <Field label="Audio file (MP3/WAV)">
-            <input
-              type="file"
-              accept="audio/*"
-              onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
-              className={inputCls}
-            />
+            <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)} className={inputCls} />
           </Field>
         ) : (
           <>
             <Field label="Platform">
-              <select
-                value={form.platform}
-                onChange={(e) => setForm((f) => ({ ...f, platform: e.target.value as Platform }))}
-                className={inputCls}
-              >
+              <select value={form.platform} onChange={(e) => setForm((f) => ({ ...f, platform: e.target.value as Platform }))} className={inputCls}>
                 <option value="">Select…</option>
                 <option value="spotify">Spotify</option>
                 <option value="soundcloud">SoundCloud</option>
@@ -183,94 +213,152 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
                 value={form.embedUrl}
                 onChange={(e) => setForm((f) => ({ ...f, embedUrl: e.target.value }))}
                 onBlur={(e) => {
-                  // Auto-convert any share link → correct embed URL so the
-                  // web player loads instead of triggering the app deep-link
                   const raw = e.target.value.trim();
-                  if (!raw || !form.platform) return;
-                  setForm((f) => ({ ...f, embedUrl: normaliseEmbedUrl(raw, f.platform) }));
+                  if (raw && form.platform) setForm((f) => ({ ...f, embedUrl: normaliseEmbedUrl(raw, f.platform) }));
                 }}
                 placeholder="Paste any Spotify / SoundCloud / Mixcloud link"
                 className={inputCls}
               />
-              <p className="text-[10px] text-[#444440] mt-1">
-                Paste any share link — it will be converted to the embed format automatically.
-              </p>
+              <p className="text-[10px] text-[#444440] mt-1">Paste any share link — auto-converted to embed format.</p>
             </Field>
           </>
         )}
 
         <Field label="Cover image (optional)">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
-            className={inputCls}
-          />
+          <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className={inputCls} />
         </Field>
-
         <Field label="Description (optional)">
-          <textarea
-            value={form.description}
-            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            rows={2}
-            className={inputCls + " resize-none"}
-          />
+          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={2} className={inputCls + " resize-none"} />
         </Field>
 
         <label className="flex items-center gap-2 text-sm text-[#888880] cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.featured}
-            onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
-            className="accent-[#c9a84c]"
-          />
+          <input type="checkbox" checked={form.featured} onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))} className="accent-[#c9a84c]" />
           Feature on homepage
         </label>
 
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && !editingId && <p className="text-red-400 text-xs">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2.5 bg-[#c9a84c] text-[#0a0a0a] text-sm tracking-wider uppercase font-medium hover:bg-[#e2c278] disabled:opacity-50 transition-colors rounded-sm flex items-center justify-center gap-2"
-        >
+        <button type="submit" disabled={loading} className="w-full py-2.5 bg-[#c9a84c] text-[#0a0a0a] text-sm tracking-wider uppercase font-medium hover:bg-[#e2c278] disabled:opacity-50 transition-colors rounded-sm flex items-center justify-center gap-2">
           <Plus size={14} />
-          {loading ? "Saving…" : "Add track"}
+          {loading && !editingId ? "Saving…" : "Add track"}
         </button>
       </form>
 
-      {/* Track list */}
+      {/* ── Track list ── */}
       <div className="space-y-3">
         <h2 className="font-serif text-lg text-[#f5f0e8]">All tracks ({tracks.length})</h2>
         {tracks.length === 0 && <p className="text-[#888880] text-sm">No tracks yet.</p>}
-        {tracks.map((track) => (
-          <div
-            key={track.id}
-            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-3 flex items-center justify-between gap-3"
-          >
-            <div className="min-w-0">
-              <p className="text-sm text-[#f5f0e8] truncate">{track.title}</p>
-              <p className="text-xs text-[#888880]">
-                {track.type} {track.platform ? `· ${track.platform}` : ""}
-              </p>
+
+        {tracks.map((track) =>
+          editingId === track.id ? (
+            /* ── Inline edit form ── */
+            <div key={track.id} className="bg-[#1a1a1a] border border-[#c9a84c]/30 rounded-lg p-4 space-y-3">
+              <p className="text-xs tracking-wider uppercase text-[#c9a84c] mb-1">Editing</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Title">
+                  <input value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} className={inputCls} />
+                </Field>
+                <Field label="Artist">
+                  <input value={editForm.artist} onChange={(e) => setEditForm((f) => ({ ...f, artist: e.target.value }))} className={inputCls} />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Type">
+                  <select value={editForm.type} onChange={(e) => setEditForm((f) => ({ ...f, type: e.target.value as TrackType, platform: "" }))} className={inputCls}>
+                    <option value="exclusive">Exclusive</option>
+                    <option value="released">Released</option>
+                    <option value="mix">Mix</option>
+                  </select>
+                </Field>
+                {editForm.type !== "exclusive" && (
+                  <Field label="Platform">
+                    <select value={editForm.platform} onChange={(e) => setEditForm((f) => ({ ...f, platform: e.target.value as Platform }))} className={inputCls}>
+                      <option value="">Select…</option>
+                      <option value="spotify">Spotify</option>
+                      <option value="soundcloud">SoundCloud</option>
+                      <option value="mixcloud">Mixcloud</option>
+                    </select>
+                  </Field>
+                )}
+              </div>
+
+              {editForm.type !== "exclusive" && (
+                <Field label="Embed URL">
+                  <input
+                    value={editForm.embedUrl}
+                    onChange={(e) => setEditForm((f) => ({ ...f, embedUrl: e.target.value }))}
+                    onBlur={(e) => {
+                      const raw = e.target.value.trim();
+                      if (raw && editForm.platform) setEditForm((f) => ({ ...f, embedUrl: normaliseEmbedUrl(raw, f.platform) }));
+                    }}
+                    placeholder="Paste any share link"
+                    className={inputCls}
+                  />
+                </Field>
+              )}
+
+              {editForm.type === "exclusive" && (
+                <Field label="Replace audio (optional)">
+                  <input type="file" accept="audio/*" onChange={(e) => setEditAudioFile(e.target.files?.[0] ?? null)} className={inputCls} />
+                </Field>
+              )}
+
+              <Field label="Replace cover image (optional)">
+                <input type="file" accept="image/*" onChange={(e) => setEditCoverFile(e.target.files?.[0] ?? null)} className={inputCls} />
+              </Field>
+
+              <Field label="Description">
+                <textarea value={editForm.description} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} rows={2} className={inputCls + " resize-none"} />
+              </Field>
+
+              <label className="flex items-center gap-2 text-sm text-[#888880] cursor-pointer">
+                <input type="checkbox" checked={editForm.featured} onChange={(e) => setEditForm((f) => ({ ...f, featured: e.target.checked }))} className="accent-[#c9a84c]" />
+                Feature on homepage
+              </label>
+
+              {error && editingId === track.id && <p className="text-red-400 text-xs">{error}</p>}
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => saveEdit(track.id)}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#c9a84c] text-[#0a0a0a] text-xs tracking-wider uppercase font-medium hover:bg-[#e2c278] disabled:opacity-50 transition-colors rounded-sm"
+                >
+                  <Check size={12} />
+                  {loading ? "Saving…" : "Save"}
+                </button>
+                <button
+                  onClick={() => { setEditingId(null); setError(""); }}
+                  className="flex items-center gap-1.5 px-4 py-2 border border-[#2a2a2a] text-[#888880] text-xs tracking-wider uppercase hover:border-[#444] hover:text-[#f0ebe0] transition-colors rounded-sm"
+                >
+                  <X size={12} />
+                  Cancel
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => toggleFeatured(track)}
-                className="text-[#888880] hover:text-[#c9a84c] transition-colors"
-                title={track.featured ? "Unfeature" : "Feature"}
-              >
-                {track.featured ? <Star size={16} className="text-[#c9a84c]" /> : <StarOff size={16} />}
-              </button>
-              <button
-                onClick={() => remove(track.id)}
-                className="text-[#888880] hover:text-red-400 transition-colors"
-              >
-                <Trash2 size={16} />
-              </button>
+          ) : (
+            /* ── Normal row ── */
+            <div key={track.id} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-[#f5f0e8] truncate">{track.title}</p>
+                <p className="text-xs text-[#888880]">{track.type}{track.platform ? ` · ${track.platform}` : ""}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={() => startEdit(track)} className="text-[#888880] hover:text-[#f0ebe0] transition-colors" title="Edit">
+                  <Pencil size={15} />
+                </button>
+                <button onClick={() => toggleFeatured(track)} className="text-[#888880] hover:text-[#c9a84c] transition-colors" title={track.featured ? "Unfeature" : "Feature"}>
+                  {track.featured ? <Star size={16} className="text-[#c9a84c]" /> : <StarOff size={16} />}
+                </button>
+                <button onClick={() => remove(track.id)} className="text-[#888880] hover:text-red-400 transition-colors">
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        )}
       </div>
     </div>
   );
