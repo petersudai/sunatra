@@ -32,7 +32,7 @@ export default async function MusicPage() {
           className="font-serif font-light text-[#f0ebe0] italic leading-[0.88] mb-4"
           style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
         >
-          The Work
+          Sounds
         </h1>
         <p className="font-serif italic text-[#555550] text-base md:text-lg">
           Beats, sets, and the sound between.

@@ -188,6 +188,34 @@
 }
 .wave-bar { animation: waveBreath 3s ease-in-out infinite; }
 
+/* ── Persistent player ────────────────────────────── */
+
+/* Artwork gold pulse while playing */
+@keyframes playerArtGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(201,168,76,0.2),
+      0 0 10px rgba(201,168,76,0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(201,168,76,0.55),
+      0 0 22px rgba(201,168,76,0.18);
+  }
+}
+.player-art-glow { animation: playerArtGlow 3s ease-in-out infinite; }
+
+/* Title marquee — scrolls when text overflows its container */
+@keyframes playerMarquee {
+  0%,  18% { transform: translateX(0); }
+  82%, 100% { transform: translateX(var(--marquee-dist, 0px)); }
+}
+.player-title-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  animation: playerMarquee 7s ease-in-out infinite;
+}
+
 /* ── Scroll-reveal (IntersectionObserver) ─────────── */
 .reveal {
   opacity: 0;
