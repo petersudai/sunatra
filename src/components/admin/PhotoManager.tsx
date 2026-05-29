@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Trash2, Star, StarOff, Plus, Pencil, X, Check } from "lucide-react";
 import Image from "next/image";
 import type { IPhoto } from "@/types";
@@ -28,14 +29,14 @@ export function PhotoManager({ initialPhotos }: { initialPhotos: IPhoto[] }) {
   const [error, setError] = useState("");
 
   /* ─────────────── helpers ─────────────── */
-  const uploadFile = async (f: File, folder: string) => {
-    const fd = new FormData();
-    fd.append("file", f);
-    fd.append("folder", folder);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error ?? "Upload failed.");
-    return data.url as string;
+  const uploadFile = async (f: File, folder: string): Promise<string> => {
+    const ext = f.name.split(".").pop() ?? "bin";
+    const pathname = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const blob = await upload(pathname, f, {
+      access: "public",
+      handleUploadUrl: "/api/upload",
+    });
+    return blob.url;
   };
 
   const getDimensions = (f: File): Promise<{ width: number; height: number }> =>

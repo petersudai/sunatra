@@ -1,26 +1,34 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const formData = await req.formData();
-  const file = formData.get("file") as File | null;
-  const folder = (formData.get("folder") as string) ?? "uploads";
-
-  if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
-
-  const ext = file.name.split(".").pop();
-  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+// This route issues signed upload tokens and receives completion webhooks.
+// The actual file bytes go directly from the browser to Vercel Blob —
+// the serverless function never sees the payload, so there's no 4.5MB limit.
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
 
   try {
-    const blob = await put(filename, file, { access: "public" });
-    return NextResponse.json({ url: blob.url });
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => {
+        // Called when the browser requests an upload token — verify auth here.
+        const session = await getServerSession(authOptions);
+        if (!session) throw new Error("Unauthorized");
+        return {
+          allowedContentTypes: ["image/*", "audio/*"],
+          maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
+        };
+      },
+      onUploadCompleted: async ({ blob }) => {
+        // Webhook from Vercel Blob after the direct upload finishes.
+        console.log("blob upload completed:", blob.url);
+      },
+    });
+    return NextResponse.json(jsonResponse);
   } catch (err) {
-    console.error("Blob upload error:", err);
-    return NextResponse.json({ error: "Upload failed. Check BLOB_READ_WRITE_TOKEN." }, { status: 500 });
+    return NextResponse.json({ error: (err as Error).message }, { status: 400 });
   }
 }

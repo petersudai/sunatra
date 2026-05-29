@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Trash2, Star, StarOff, Plus, Pencil, X, Check } from "lucide-react";
 import type { ITrack } from "@/types";
 
@@ -74,14 +75,14 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
   const [error, setError] = useState("");
 
   /* ─────────────── helpers ─────────────── */
-  const uploadFile = async (file: File, folder: string) => {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", folder);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error ?? "Upload failed.");
-    return data.url as string;
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    const ext = file.name.split(".").pop() ?? "bin";
+    const pathname = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const blob = await upload(pathname, file, {
+      access: "public",
+      handleUploadUrl: "/api/upload",
+    });
+    return blob.url;
   };
 
   /* ─────────────── add ─────────────── */
