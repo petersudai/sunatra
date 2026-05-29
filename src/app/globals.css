@@ -140,16 +140,18 @@
 }
 @supports (animation-timeline: scroll()) {
   .hero-parallax {
+    top: -18%; /* overshoot: gives parallax room to slide down */
     animation: heroParallax linear both;
     animation-timeline: scroll(root);
     animation-range: 0 100vh;
     will-change: transform;
   }
-  /* Disable parallax on mobile — two concurrent GPU-composited layers
-     (parallax + ken-burns + brightness filter) cause blurry rendering on
-     mobile GPUs. Ken-Burns alone is enough motion on small screens. */
+  /* On mobile: remove the overshoot so the browser doesn't create an
+     oversized compositing layer (that's what causes GPU raster blur).
+     No parallax on mobile anyway, so inset-0 is correct. */
   @media (max-width: 768px) {
     .hero-parallax {
+      top: 0;
       animation: none;
       will-change: auto;
     }

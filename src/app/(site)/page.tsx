@@ -40,11 +40,8 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
 
-        {/* Background: wilderness savanna — oversized vertically for parallax room */}
-        <div
-          className="absolute left-0 right-0 bottom-0 hero-parallax"
-          style={{ top: "-18%" }}
-        >
+        {/* Background: wilderness savanna — CSS handles top offset for parallax room */}
+        <div className="absolute left-0 right-0 bottom-0 hero-parallax">
           <Image
             src="/images/savanna-hill.jpg"
             alt=""
