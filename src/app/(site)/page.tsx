@@ -192,6 +192,7 @@ export default async function HomePage() {
             src="/images/wilderness-tree.jpg"
             alt=""
             fill
+            sizes="(min-width: 768px) 60vw, 100vw"
             className="object-cover object-center brightness-[0.28] group-hover:brightness-[0.38] group-hover:scale-105 transition-all duration-700"
           />
           {/* Bottom gradient so text stays legible */}
@@ -231,6 +232,7 @@ export default async function HomePage() {
             src="/images/diani-beach.jpg"
             alt="Photography"
             fill
+            sizes="(min-width: 768px) 40vw, 100vw"
             className="object-cover object-center brightness-[0.42] group-hover:brightness-[0.55] group-hover:scale-105 transition-all duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent" />
