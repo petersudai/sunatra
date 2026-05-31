@@ -51,7 +51,7 @@ export function Navbar() {
                 href={l.href}
                 className={cn(
                   "text-[10px] tracking-[0.3em] uppercase transition-colors duration-300",
-                  l.href === "/music" || pathname === l.href || pathname.startsWith(l.href + "/")
+                  pathname === l.href || pathname.startsWith(l.href + "/")
                     ? "text-[#c9a84c] hover:text-[#e2c278]"
                     : "text-[#aaaaaa] hover:text-[#f0ebe0]"
                 )}

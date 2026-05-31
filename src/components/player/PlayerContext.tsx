@@ -115,6 +115,8 @@ export function PlayerProvider({
     audio.play().catch(console.error);
     setIsPlaying(true);
     setIsVisible(true);
+    // Fire-and-forget — never block playback over a stat write
+    fetch(`/api/tracks/${track.id}/play`, { method: "POST" }).catch(() => {});
   }, []);
 
   /* ── next/prev respecting shuffle order ── */

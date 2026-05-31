@@ -127,10 +127,32 @@ export function PhotoManager({ initialPhotos }: { initialPhotos: IPhoto[] }) {
   };
 
   /* ─────────────── other actions ─────────────── */
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [dragIndex, setDragIndex]     = useState<number | null>(null);
+  const [dragOverIndex, setDragOver]  = useState<number | null>(null);
+
   const remove = async (id: string) => {
     await fetch(`/api/photos/${id}`, { method: "DELETE" });
     setPhotos((prev) => prev.filter((p) => p.id !== id));
     if (editingPhoto?.id === id) cancelEdit();
+    setConfirmDeleteId(null);
+  };
+
+  const handleDrop = async (dropIndex: number) => {
+    if (dragIndex === null || dragIndex === dropIndex) {
+      setDragIndex(null); setDragOver(null); return;
+    }
+    const next = [...photos];
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(dropIndex, 0, moved);
+    setPhotos(next);
+    setDragIndex(null);
+    setDragOver(null);
+    await fetch("/api/photos/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: next.map(p => p.id) }),
+    });
   };
 
   const toggleFeatured = async (photo: IPhoto) => {
@@ -243,25 +265,45 @@ export function PhotoManager({ initialPhotos }: { initialPhotos: IPhoto[] }) {
         <h2 className="font-serif text-lg text-[#f5f0e8] mb-4">All photos ({photos.length})</h2>
         {photos.length === 0 && <p className="text-[#888880] text-sm">No photos yet.</p>}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {photos.map((photo) => (
+          {photos.map((photo, i) => (
             <div
               key={photo.id}
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(i); }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={() => handleDrop(i)}
+              onDragEnd={() => { setDragIndex(null); setDragOver(null); }}
               className={[
-                "relative group rounded-lg overflow-hidden bg-[#1a1a1a] aspect-square",
+                "relative group rounded-lg overflow-hidden bg-[#1a1a1a] aspect-square cursor-grab active:cursor-grabbing transition-all",
                 editingPhoto?.id === photo.id ? "ring-1 ring-[#c9a84c]/50" : "",
+                dragOverIndex === i && dragIndex !== i ? "ring-1 ring-[#c9a84c]/40 scale-[0.97]" : "",
+                dragIndex === i ? "opacity-40" : "",
               ].join(" ")}
             >
               <Image src={photo.url} alt={photo.caption ?? ""} fill className="object-cover" />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <button onClick={() => startEdit(photo)} className="text-white hover:text-[#c9a84c] transition-colors" title="Edit">
-                  <Pencil size={16} />
-                </button>
-                <button onClick={() => toggleFeatured(photo)} className="text-white hover:text-[#c9a84c] transition-colors">
-                  {photo.featured ? <Star size={18} className="text-[#c9a84c]" /> : <StarOff size={18} />}
-                </button>
-                <button onClick={() => remove(photo.id)} className="text-white hover:text-red-400 transition-colors">
-                  <Trash2 size={18} />
-                </button>
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                {confirmDeleteId === photo.id ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-[9px] tracking-wider uppercase text-white/70">Delete?</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => remove(photo.id)} className="text-[9px] tracking-wider uppercase text-red-400 hover:text-red-300 px-2 py-1 border border-red-400/30 rounded-sm transition-colors">Yes</button>
+                      <button onClick={() => setConfirmDeleteId(null)} className="text-[9px] tracking-wider uppercase text-[#888880] hover:text-white px-2 py-1 border border-white/10 rounded-sm transition-colors">No</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button onClick={() => startEdit(photo)} className="text-white hover:text-[#c9a84c] transition-colors" title="Edit">
+                      <Pencil size={16} />
+                    </button>
+                    <button onClick={() => toggleFeatured(photo)} className="text-white hover:text-[#c9a84c] transition-colors">
+                      {photo.featured ? <Star size={18} className="text-[#c9a84c]" /> : <StarOff size={18} />}
+                    </button>
+                    <button onClick={() => setConfirmDeleteId(photo.id)} className="text-white hover:text-red-400 transition-colors">
+                      <Trash2 size={18} />
+                    </button>
+                  </>
+                )}
               </div>
               {photo.featured && (
                 <span className="absolute top-2 right-2 bg-[#c9a84c] text-[#0a0a0a] text-[9px] px-1.5 py-0.5 rounded-full font-medium">

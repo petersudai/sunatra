@@ -71,6 +71,13 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
   const [editAudioFile, setEditAudioFile] = useState<File | null>(null);
   const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
 
+  /* ── Delete confirmation ── */
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  /* ── Drag to reorder ── */
+  const [dragIndex, setDragIndex]     = useState<number | null>(null);
+  const [dragOverIndex, setDragOver]  = useState<number | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -161,6 +168,25 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
   const remove = async (id: string) => {
     await fetch(`/api/tracks/${id}`, { method: "DELETE" });
     setTracks((prev) => prev.filter((t) => t.id !== id));
+    setConfirmDeleteId(null);
+  };
+
+  /* ── Drag reorder ── */
+  const handleDrop = async (dropIndex: number) => {
+    if (dragIndex === null || dragIndex === dropIndex) {
+      setDragIndex(null); setDragOver(null); return;
+    }
+    const next = [...tracks];
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(dropIndex, 0, moved);
+    setTracks(next);
+    setDragIndex(null);
+    setDragOver(null);
+    await fetch("/api/tracks/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: next.map(t => t.id) }),
+    });
   };
 
   const toggleFeatured = async (track: ITrack) => {
@@ -250,7 +276,7 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
         <h2 className="font-serif text-lg text-[#f5f0e8]">All tracks ({tracks.length})</h2>
         {tracks.length === 0 && <p className="text-[#888880] text-sm">No tracks yet.</p>}
 
-        {tracks.map((track) =>
+        {tracks.map((track, i) =>
           editingId === track.id ? (
             /* ── Inline edit form ── */
             <div key={track.id} className="bg-[#1a1a1a] border border-[#c9a84c]/30 rounded-lg p-4 space-y-3">
@@ -341,11 +367,50 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
             </div>
           ) : (
             /* ── Normal row ── */
-            <div key={track.id} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-3 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-sm text-[#f5f0e8] truncate">{track.title}</p>
-                <p className="text-xs text-[#888880]">{track.type}{track.platform ? ` · ${track.platform}` : ""}</p>
+            <div
+              key={track.id}
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(i); }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={() => handleDrop(i)}
+              onDragEnd={() => { setDragIndex(null); setDragOver(null); }}
+              className={[
+                "bg-[#1a1a1a] border rounded-lg px-4 py-3 flex items-center justify-between gap-3 transition-all",
+                dragOverIndex === i && dragIndex !== i
+                  ? "border-[#c9a84c]/40 bg-[#c9a84c]/04"
+                  : "border-[#2a2a2a]",
+                dragIndex === i ? "opacity-40" : "",
+              ].join(" ")}
+            >
+              {/* Drag handle */}
+              <div className="text-[#2a2a2a] hover:text-[#444440] cursor-grab active:cursor-grabbing shrink-0" title="Drag to reorder">
+                <svg viewBox="0 0 10 14" width="10" height="14" fill="currentColor">
+                  <circle cx="3" cy="2"  r="1.2"/><circle cx="7" cy="2"  r="1.2"/>
+                  <circle cx="3" cy="7"  r="1.2"/><circle cx="7" cy="7"  r="1.2"/>
+                  <circle cx="3" cy="12" r="1.2"/><circle cx="7" cy="12" r="1.2"/>
+                </svg>
               </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-[#f5f0e8] truncate">{track.title}</p>
+                <p className="text-xs text-[#888880]">
+                  {track.type}{track.platform ? ` · ${track.platform}` : ""}
+                </p>
+              </div>
+
+              {/* Play count */}
+              {track.type === "exclusive" && (
+                <div className="hidden sm:flex items-center gap-1 shrink-0 mr-1" title="Total plays">
+                  <svg viewBox="0 0 12 12" width="9" height="9" fill="#c9a84c" opacity={0.5}>
+                    <path d="M2 1.5l8 4.5-8 4.5z" />
+                  </svg>
+                  <span className="text-[10px] tabular-nums text-[#555550]">
+                    {(track.playCount ?? 0).toLocaleString()}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => startEdit(track)} className="text-[#888880] hover:text-[#f0ebe0] transition-colors" title="Edit">
                   <Pencil size={15} />
@@ -353,9 +418,16 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
                 <button onClick={() => toggleFeatured(track)} className="text-[#888880] hover:text-[#c9a84c] transition-colors" title={track.featured ? "Unfeature" : "Feature"}>
                   {track.featured ? <Star size={16} className="text-[#c9a84c]" /> : <StarOff size={16} />}
                 </button>
-                <button onClick={() => remove(track.id)} className="text-[#888880] hover:text-red-400 transition-colors">
-                  <Trash2 size={16} />
-                </button>
+                {confirmDeleteId === track.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => remove(track.id)} className="text-[9px] tracking-wider uppercase text-red-400 hover:text-red-300 transition-colors px-1">Yes</button>
+                    <button onClick={() => setConfirmDeleteId(null)} className="text-[9px] tracking-wider uppercase text-[#555550] hover:text-[#888880] transition-colors px-1">No</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmDeleteId(track.id)} className="text-[#888880] hover:text-red-400 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
             </div>
           )

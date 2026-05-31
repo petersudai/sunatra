@@ -23,6 +23,7 @@ model Track {
   featured    Boolean   @default(false)
   releaseDate DateTime?
   order       Int       @default(0)
+  playCount   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

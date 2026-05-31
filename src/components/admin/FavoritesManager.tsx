@@ -41,6 +41,8 @@ export function FavoritesManager({
   const [editingPaletteId, setEditingPaletteId] = useState<string | null>(null);
   const [editPaletteForm, setEditPaletteForm] = useState(paletteEmpty);
 
+  const [confirmDeleteTrackId,   setConfirmDeleteTrackId]   = useState<string | null>(null);
+  const [confirmDeletePaletteId, setConfirmDeletePaletteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   /* ─────────────── track: add ─────────────── */
@@ -93,6 +95,7 @@ export function FavoritesManager({
     });
     setTracks((prev) => prev.filter((t) => t.id !== id));
     if (editingTrackId === id) setEditingTrackId(null);
+    setConfirmDeleteTrackId(null);
   };
 
   /* ─────────────── palette: add ─────────────── */
@@ -142,6 +145,7 @@ export function FavoritesManager({
     });
     setPalettes((prev) => prev.filter((p) => p.id !== id));
     if (editingPaletteId === id) setEditingPaletteId(null);
+    setConfirmDeletePaletteId(null);
   };
 
   /* ─────────────── swatch helpers (add form) ─────────────── */
@@ -249,9 +253,16 @@ export function FavoritesManager({
                   <button onClick={() => startEditTrack(t)} className="text-[#888880] hover:text-[#f0ebe0] transition-colors" title="Edit">
                     <Pencil size={15} />
                   </button>
-                  <button onClick={() => removeTrack(t.id)} className="text-[#888880] hover:text-red-400 transition-colors">
-                    <Trash2 size={15} />
-                  </button>
+                  {confirmDeleteTrackId === t.id ? (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => removeTrack(t.id)} className="text-[9px] tracking-wider uppercase text-red-400 hover:text-red-300 px-1 transition-colors">Yes</button>
+                      <button onClick={() => setConfirmDeleteTrackId(null)} className="text-[9px] tracking-wider uppercase text-[#555550] hover:text-[#888880] px-1 transition-colors">No</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmDeleteTrackId(t.id)} className="text-[#888880] hover:text-red-400 transition-colors">
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </div>
               </div>
             )
@@ -343,9 +354,16 @@ export function FavoritesManager({
                     <button onClick={() => startEditPalette(p)} className="text-[#888880] hover:text-[#f0ebe0] transition-colors" title="Edit">
                       <Pencil size={15} />
                     </button>
-                    <button onClick={() => removePalette(p.id)} className="text-[#888880] hover:text-red-400 transition-colors">
-                      <Trash2 size={15} />
-                    </button>
+                    {confirmDeletePaletteId === p.id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => removePalette(p.id)} className="text-[9px] tracking-wider uppercase text-red-400 hover:text-red-300 px-1 transition-colors">Yes</button>
+                        <button onClick={() => setConfirmDeletePaletteId(null)} className="text-[9px] tracking-wider uppercase text-[#555550] hover:text-[#888880] px-1 transition-colors">No</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDeletePaletteId(p.id)} className="text-[#888880] hover:text-red-400 transition-colors">
+                        <Trash2 size={15} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-2 flex-wrap">
