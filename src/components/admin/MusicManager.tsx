@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { upload } from "@vercel/blob/client";
-import { Trash2, Star, StarOff, Plus, Pencil, X, Check } from "lucide-react";
+import { Trash2, Star, StarOff, Plus, Pencil, X, Check, Link2 } from "lucide-react";
+import { TagPicker } from "./TagPicker";
+import { trackUrl } from "@/lib/tags";
 import type { ITrack } from "@/types";
 
 type TrackType = "exclusive" | "released" | "mix";
@@ -53,6 +55,7 @@ const emptyForm = {
   embedUrl: "",
   description: "",
   featured: false,
+  tags: [] as string[],
 };
 
 type FormShape = typeof emptyForm;
@@ -73,6 +76,18 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
 
   /* ── Delete confirmation ── */
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  /* ── Copy share link ── */
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copyLink = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(trackUrl(id));
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1800);
+    } catch {
+      window.prompt("Copy this link:", trackUrl(id));
+    }
+  };
 
   /* ── Drag to reorder ── */
   const [dragIndex, setDragIndex]     = useState<number | null>(null);
@@ -134,6 +149,7 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
       embedUrl: track.embedUrl ?? "",
       description: track.description ?? "",
       featured: track.featured,
+      tags: track.tags ?? [],
     });
     setEditAudioFile(null);
     setEditCoverFile(null);
@@ -254,6 +270,9 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
         <Field label="Cover image (optional)">
           <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className={inputCls} />
         </Field>
+        <Field label="Genre tags">
+          <TagPicker value={form.tags} onChange={(tags) => setForm((f) => ({ ...f, tags }))} />
+        </Field>
         <Field label="Description (optional)">
           <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={2} className={inputCls + " resize-none"} />
         </Field>
@@ -336,6 +355,9 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
                 <input type="file" accept="image/*" onChange={(e) => setEditCoverFile(e.target.files?.[0] ?? null)} className={inputCls} />
               </Field>
 
+              <Field label="Genre tags">
+                <TagPicker value={editForm.tags} onChange={(tags) => setEditForm((f) => ({ ...f, tags }))} />
+              </Field>
               <Field label="Description">
                 <textarea value={editForm.description} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} rows={2} className={inputCls + " resize-none"} />
               </Field>
@@ -396,6 +418,7 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
                 <p className="text-sm text-[#f5f0e8] truncate">{track.title}</p>
                 <p className="text-xs text-[#888880]">
                   {track.type}{track.platform ? ` · ${track.platform}` : ""}
+                  {track.tags?.length ? ` · ${track.tags.join(", ")}` : ""}
                 </p>
               </div>
 
@@ -412,6 +435,15 @@ export function MusicManager({ initialTracks }: { initialTracks: ITrack[] }) {
               )}
 
               <div className="flex items-center gap-2 shrink-0">
+                {/* Share link — the page you paste into an IG story link sticker */}
+                <button
+                  onClick={() => copyLink(track.id)}
+                  className={["transition-colors", copiedId === track.id ? "text-[#c9a84c]" : "text-[#888880] hover:text-[#f0ebe0]"].join(" ")}
+                  title="Copy share link"
+                  aria-label="Copy share link"
+                >
+                  {copiedId === track.id ? <Check size={15} /> : <Link2 size={15} />}
+                </button>
                 <button onClick={() => startEdit(track)} className="text-[#888880] hover:text-[#f0ebe0] transition-colors" title="Edit">
                   <Pencil size={15} />
                 </button>

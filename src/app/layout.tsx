@@ -16,6 +16,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  // Needed so relative og:image / canonical URLs resolve to absolute ones
+  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: { default: "Sunatra", template: "%s | Sunatra" },
   description:
     "Music producer, DJ, designer, and photographer. Creative work by Sunatra.",

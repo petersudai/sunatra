@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
         featured: body.featured ?? false,
         releaseDate: body.releaseDate ? new Date(body.releaseDate) : null,
         order: body.order ?? 0,
+        tags: Array.isArray(body.tags) ? body.tags : [],
       },
     });
     return NextResponse.json(track, { status: 201 });

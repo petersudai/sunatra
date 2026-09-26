@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { usePlayer } from "@/components/player/PlayerContext";
+import { ShareButton } from "./ShareButton";
 import { formatDuration, getWaveHeights } from "@/lib/utils";
 import type { ITrack } from "@/types";
 
@@ -53,13 +54,16 @@ export function AudioPlayer({ track }: { track: ITrack }) {
             <p className="font-sans font-semibold text-[#f0ebe0] text-sm truncate leading-tight">
               {track.title}
             </p>
-            <p className="text-[9px] tracking-[0.25em] uppercase text-[#444440] mt-0.5">
-              {track.artist}
+            <p className="text-[9px] tracking-[0.25em] uppercase text-[#444440] mt-0.5 truncate">
+              {[track.artist, ...(track.tags ?? [])].join(" · ")}
             </p>
           </div>
-          <span className="text-[9px] tracking-[0.2em] uppercase text-[#c9a84c]/70 shrink-0 mt-0.5">
-            Exclusive
-          </span>
+          <div className="flex items-center gap-3 shrink-0 mt-0.5">
+            <ShareButton id={track.id} title={track.title} variant="icon" />
+            <span className="text-[9px] tracking-[0.2em] uppercase text-[#c9a84c]/70">
+              Exclusive
+            </span>
+          </div>
         </div>
 
         {/* Bottom row: play + waveform + duration */}

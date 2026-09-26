@@ -23,8 +23,15 @@ interface Props {
 export function MusicTabs({ exclusives, released, mixes }: Props) {
   const [active, setActive] = useState<TabId>("exclusives");
 
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+
   const content: Record<TabId, ITrack[]> = { exclusives, released, mixes };
-  const tracks = content[active];
+  const tabTracks = content[active];
+
+  // Genre pills come from whatever is in the current tab; hidden if nothing is tagged
+  const tagOptions = Array.from(new Set(tabTracks.flatMap((t) => t.tags ?? [])));
+  const selectedTag = activeTag && tagOptions.includes(activeTag) ? activeTag : null;
+  const tracks = selectedTag ? tabTracks.filter((t) => t.tags?.includes(selectedTag)) : tabTracks;
 
   return (
     <div>
@@ -45,6 +52,25 @@ export function MusicTabs({ exclusives, released, mixes }: Props) {
           </button>
         ))}
       </div>
+
+      {tagOptions.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-8">
+          {[null, ...tagOptions].map((tag) => (
+            <button
+              key={tag ?? "all"}
+              onClick={() => setActiveTag(tag)}
+              className={cn(
+                "px-4 py-1.5 text-[9px] tracking-[0.35em] uppercase border transition-all duration-200",
+                selectedTag === tag
+                  ? "bg-[#c9a84c]/10 border-[#c9a84c]/40 text-[#c9a84c]"
+                  : "border-[#1a1a1a] text-[#444440] hover:border-[#2a2a2a] hover:text-[#888880]"
+              )}
+            >
+              {tag ?? "All"}
+            </button>
+          ))}
+        </div>
+      )}
 
       {tracks.length === 0 ? (
         <p className="font-serif italic text-[#333330] text-sm py-12">
