@@ -47,7 +47,7 @@ export function ShareButton({
         onClick={share}
         aria-label={copied ? "Link copied" : "Share track"}
         title={copied ? "Link copied" : "Share"}
-        className={["shrink-0 transition-colors", copied ? "text-[#c9a84c]" : "text-[#444440] hover:text-[#c9a84c]"].join(" ")}
+        className={["shrink-0 p-3 -m-3 transition-colors", copied ? "text-[#c9a84c]" : "text-[#444440] hover:text-[#c9a84c]"].join(" ")}
       >
         {icon}
       </button>

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { AudioPlayer } from "@/components/music/AudioPlayer";
 import { EmbedCard } from "@/components/music/EmbedCard";
 import { ShareButton } from "@/components/music/ShareButton";
+import { CoverPlay } from "@/components/music/CoverPlay";
 import type { ITrack } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -62,7 +63,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
 
       <div className="grid md:grid-cols-[minmax(0,260px)_1fr] gap-8 md:gap-12 items-start mb-12">
         {/* Cover */}
-        <div className="relative aspect-square w-full max-w-[320px] bg-[#0d0d0d] border border-[#111] overflow-hidden">
+        <div className="relative aspect-square w-full max-w-[260px] md:max-w-[320px] bg-[#0d0d0d] border border-[#111] overflow-hidden">
           {track.coverUrl ? (
             <Image
               src={track.coverUrl}
@@ -77,6 +78,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
               <span className="font-serif italic text-6xl text-[#c9a84c]/50">S</span>
             </div>
           )}
+          {track.type === "exclusive" && track.audioUrl && <CoverPlay track={track} />}
         </div>
 
         {/* Info */}

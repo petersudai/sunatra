@@ -90,9 +90,9 @@ export function PlayerProvider({
 
   /* Volume — persisted to localStorage */
   const [volume, setVolumeState] = useState(() => {
-    if (typeof window === "undefined") return 0.8;
+    if (typeof window === "undefined") return 1;
     const stored = parseFloat(localStorage.getItem(VOLUME_KEY) ?? "");
-    return isNaN(stored) ? 0.8 : stored;
+    return isNaN(stored) ? 1 : stored;
   });
 
   const currentTrack = currentIndex >= 0 ? queue[currentIndex] : null;
@@ -135,7 +135,7 @@ export function PlayerProvider({
   /* ── create audio element once ── */
   useEffect(() => {
     const saved = parseFloat(localStorage.getItem(VOLUME_KEY) ?? "");
-    const vol   = isNaN(saved) ? 0.8 : saved;
+    const vol   = isNaN(saved) ? 1 : saved;
 
     const audio  = new Audio();
     audio.volume = vol;

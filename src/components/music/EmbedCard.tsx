@@ -150,7 +150,7 @@ export function EmbedCard({ track }: { track: ITrack }) {
               <button
                 onClick={() => setOpen((o) => !o)}
                 aria-label={open ? "Collapse player" : "Play track"}
-                className="w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-200 shrink-0"
+                className="relative w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-200 shrink-0 before:absolute before:-inset-1.5 before:content-['']"
                 style={{
                   borderColor: open ? color : color + "45",
                   background: open ? color + "22" : "transparent",

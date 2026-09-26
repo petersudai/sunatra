@@ -274,7 +274,7 @@ export default async function HomePage() {
               </Link>
             </div>
           </Reveal>
-          <div className="grid gap-2 max-w-3xl">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 max-w-3xl">
             {featuredTracks.map((track) =>
               track.type === "exclusive" ? (
                 <AudioPlayer key={track.id} track={track} />

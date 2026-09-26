@@ -282,7 +282,7 @@ export function PersistentPlayer() {
           </div>
 
           {/* ── Track info ── */}
-          <div className="min-w-0 w-36 md:w-48 shrink-0">
+          <div className="min-w-0 flex-1 md:flex-none md:w-48">
             <MarqueeTitle title={currentTrack?.title ?? "—"} />
             <p className="text-[9px] tracking-[0.28em] uppercase text-[#444440] mt-0.5 truncate">
               {currentTrack?.artist ?? ""}
@@ -290,9 +290,9 @@ export function PersistentPlayer() {
           </div>
 
           {/* ── Controls ── */}
-          <div className="flex items-center gap-3 md:gap-3.5 shrink-0">
+          <div className="flex items-center gap-0.5 md:gap-3.5 shrink-0">
             <button onClick={prev} disabled={!hasPrev} aria-label="Previous"
-              className="hidden sm:flex text-[#555550] hover:text-[#f0ebe0] disabled:opacity-20 disabled:cursor-default transition-colors">
+              className="flex items-center justify-center w-9 h-9 md:w-auto md:h-auto text-[#555550] hover:text-[#f0ebe0] disabled:opacity-20 disabled:cursor-default transition-colors">
               <PrevIcon />
             </button>
 
@@ -302,7 +302,7 @@ export function PersistentPlayer() {
             </button>
 
             <button onClick={next} disabled={!hasNext} aria-label="Next"
-              className="hidden sm:flex text-[#555550] hover:text-[#f0ebe0] disabled:opacity-20 disabled:cursor-default transition-colors">
+              className="flex items-center justify-center w-9 h-9 md:w-auto md:h-auto text-[#555550] hover:text-[#f0ebe0] disabled:opacity-20 disabled:cursor-default transition-colors">
               <NextIcon />
             </button>
           </div>
@@ -366,7 +366,7 @@ export function PersistentPlayer() {
 
             {/* Dismiss */}
             <button onClick={dismiss} aria-label="Close player"
-              className="text-[#2e2e2c] hover:text-[#666660] transition-colors">
+              className="p-3 -m-3 text-[#3a3a38] hover:text-[#666660] transition-colors">
               <svg viewBox="0 0 12 12" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <path d="M1 1l10 10M11 1L1 11" />
               </svg>

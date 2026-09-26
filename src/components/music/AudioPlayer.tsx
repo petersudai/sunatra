@@ -71,7 +71,7 @@ export function AudioPlayer({ track }: { track: ITrack }) {
           <button
             onClick={toggle}
             aria-label={isPlaying ? "Pause" : "Play"}
-            className="w-6 h-6 rounded-full border border-[#333] flex items-center justify-center hover:border-[#c9a84c] hover:text-[#c9a84c] text-[#666660] transition-all duration-200 shrink-0"
+            className="relative w-8 h-8 md:w-6 md:h-6 rounded-full border border-[#333] flex items-center justify-center hover:border-[#c9a84c] hover:text-[#c9a84c] text-[#666660] transition-all duration-200 shrink-0 before:absolute before:-inset-1.5 before:content-['']"
           >
             {isPlaying ? (
               <svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor">

@@ -77,7 +77,7 @@ export function MusicTabs({ exclusives, released, mixes }: Props) {
           Nothing here yet.
         </p>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
           {tracks.map((track) =>
             track.type === "exclusive" ? (
               <AudioPlayer key={track.id} track={track} />
