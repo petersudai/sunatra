@@ -7,6 +7,7 @@ import { AudioPlayer } from "@/components/music/AudioPlayer";
 import { EmbedCard } from "@/components/music/EmbedCard";
 import { ShareButton } from "@/components/music/ShareButton";
 import { CoverPlay } from "@/components/music/CoverPlay";
+import { earlyPlayScript } from "@/lib/earlyPlay";
 import type { ITrack } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -56,12 +57,18 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
   if (!track) notFound();
 
   return (
-    <div className="max-w-3xl mx-auto px-8 md:px-14 pt-28 pb-24">
+    <div className="max-w-3xl mx-auto px-6 sm:px-8 md:px-14 pt-28 pb-24">
+      {/* Lets the very first tap start audio even before the page's JS has
+          loaded (slow phone connections). See lib/earlyPlay.ts */}
+      {track.type === "exclusive" && track.audioUrl && (
+        <script dangerouslySetInnerHTML={{ __html: earlyPlayScript(track) }} />
+      )}
+
       <p className="text-[9px] tracking-[0.45em] uppercase text-[#c9a84c] mb-8">
         {track.type === "exclusive" ? "Exclusive" : "Sounds"}
       </p>
 
-      <div className="grid md:grid-cols-[minmax(0,260px)_1fr] gap-8 md:gap-12 items-start mb-12">
+      <div className="grid md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] gap-8 md:gap-12 items-start mb-12">
         {/* Cover */}
         <div className="relative aspect-square w-full max-w-[260px] md:max-w-[320px] bg-[#0d0d0d] border border-[#111] overflow-hidden">
           {track.coverUrl ? (
@@ -84,7 +91,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
         {/* Info */}
         <div>
           <h1
-            className="font-serif font-light text-[#f0ebe0] italic leading-[0.95] mb-4"
+            className="font-serif font-light text-[#f0ebe0] italic leading-[0.95] mb-4 [overflow-wrap:anywhere]"
             style={{ fontSize: "clamp(2.5rem, 7vw, 4.5rem)" }}
           >
             {track.title}

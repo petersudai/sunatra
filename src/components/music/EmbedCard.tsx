@@ -126,20 +126,23 @@ export function EmbedCard({ track }: { track: ITrack }) {
         </div>
 
         {/* Title / artist / controls */}
-        <div className="flex-1 px-4 py-3 flex items-center justify-between gap-3 min-w-0">
+        <div className="flex-1 px-3 sm:px-4 py-3 flex items-center justify-between gap-2 sm:gap-3 min-w-0">
           <div className="min-w-0">
-            <p className="font-sans font-medium text-[#f0ebe0] text-sm truncate leading-tight">
+            {/* Small phones: wrap onto a second line rather than cut the title off */}
+            <p className="font-sans font-medium text-[#f0ebe0] text-sm leading-tight line-clamp-2 sm:line-clamp-none sm:truncate [overflow-wrap:anywhere]">
               {track.title}
             </p>
-            <p className="text-[9px] tracking-[0.28em] uppercase text-[#444440] mt-1">
+            <p className="text-[9px] tracking-[0.12em] min-[480px]:tracking-[0.28em] uppercase text-[#444440] mt-1 truncate">
               {track.artist}
+              {/* The badge below is hidden on small phones, so name the platform here instead */}
+              <span className="min-[480px]:hidden" style={{ color: color + "cc" }}> · {label}</span>
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            {/* Platform badge */}
+            {/* Platform badge (roomier screens only) */}
             <span
-              className="text-[8px] tracking-[0.2em] uppercase px-2 py-1"
+              className="hidden min-[480px]:inline text-[8px] tracking-[0.2em] uppercase px-2 py-1"
               style={{ color, background: color + "18" }}
             >
               {label}

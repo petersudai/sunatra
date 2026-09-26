@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { usePlayer } from "@/components/player/PlayerContext";
 import { ShareButton } from "./ShareButton";
+import { PlayGlyph } from "./PlayGlyph";
 import { formatDuration, getWaveHeights } from "@/lib/utils";
 import type { ITrack } from "@/types";
 
@@ -51,7 +52,7 @@ export function AudioPlayer({ track }: { track: ITrack }) {
         {/* Top row: title + tag */}
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="min-w-0">
-            <p className="font-sans font-semibold text-[#f0ebe0] text-sm truncate leading-tight">
+            <p className="font-sans font-semibold text-[#f0ebe0] text-sm leading-tight line-clamp-2 sm:line-clamp-none sm:truncate [overflow-wrap:anywhere]">
               {track.title}
             </p>
             <p className="text-[9px] tracking-[0.25em] uppercase text-[#444440] mt-0.5 truncate">
@@ -60,7 +61,8 @@ export function AudioPlayer({ track }: { track: ITrack }) {
           </div>
           <div className="flex items-center gap-3 shrink-0 mt-0.5">
             <ShareButton id={track.id} title={track.title} variant="icon" />
-            <span className="text-[9px] tracking-[0.2em] uppercase text-[#c9a84c]/70">
+            {/* Hidden on small phones: the Exclusives tab already says it, and the title needs the room */}
+            <span className="hidden min-[480px]:inline text-[9px] tracking-[0.2em] uppercase text-[#c9a84c]/70">
               Exclusive
             </span>
           </div>
@@ -70,19 +72,12 @@ export function AudioPlayer({ track }: { track: ITrack }) {
         <div className="flex items-center gap-3">
           <button
             onClick={toggle}
+            data-early-play
+            data-track-id={track.id}
             aria-label={isPlaying ? "Pause" : "Play"}
             className="relative w-8 h-8 md:w-6 md:h-6 rounded-full border border-[#333] flex items-center justify-center hover:border-[#c9a84c] hover:text-[#c9a84c] text-[#666660] transition-all duration-200 shrink-0 before:absolute before:-inset-1.5 before:content-['']"
           >
-            {isPlaying ? (
-              <svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor">
-                <rect x="1.5" y="1" width="2.5" height="8" rx="0.8" />
-                <rect x="6"   y="1" width="2.5" height="8" rx="0.8" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 10 10" width="9" height="9" fill="currentColor" className="ml-px">
-                <path d="M2 1.5l7 3.5-7 3.5z" />
-              </svg>
-            )}
+            <PlayGlyph state={isPlaying ? (player.isBuffering ? "loading" : "playing") : "idle"} size={10} />
           </button>
 
           {/* Waveform */}

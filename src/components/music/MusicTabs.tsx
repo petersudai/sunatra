@@ -42,7 +42,8 @@ export function MusicTabs({ exclusives, released, mixes }: Props) {
             key={tab.id}
             onClick={() => setActive(tab.id)}
             className={cn(
-              "px-5 py-3 text-[9px] tracking-[0.35em] uppercase transition-all duration-200 border-b-2 -mb-px",
+              // Phones: three equal tabs that always fit. sm+: original roomy look.
+              "flex-1 sm:flex-none min-w-0 px-1 sm:px-5 py-3.5 sm:py-3 text-center text-[9px] tracking-[0.2em] sm:tracking-[0.35em] uppercase transition-all duration-200 border-b-2 -mb-px",
               active === tab.id
                 ? "text-[#f0ebe0] border-[#c9a84c]"
                 : "text-[#444440] border-transparent hover:text-[#888880]"

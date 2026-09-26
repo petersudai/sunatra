@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { usePlayer } from "./PlayerContext";
 import { formatDuration, getWaveHeights } from "@/lib/utils";
+import { PlayGlyph } from "@/components/music/PlayGlyph";
 
 /* ─────────────────────────────────────────────────────────────
    Marquee title — scrolls only when text actually overflows
@@ -97,8 +98,6 @@ function WaveProgress({
 /* ─────────────────────────────────────────────────────────────
    Icon atoms
    ───────────────────────────────────────────────────────────── */
-const PlayIcon     = () => <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M3 2.5l10 5.5-10 5.5z"/></svg>;
-const PauseIcon    = () => <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>;
 const PrevIcon     = () => <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M2 2h2v12H2zM13.5 2L5 8l8.5 6z"/></svg>;
 const NextIcon     = () => <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor"><path d="M12 2h2v12h-2zM2.5 2L11 8 2.5 14z"/></svg>;
 const ShuffleIcon  = ({ active }: { active: boolean }) => (
@@ -208,7 +207,7 @@ function QueueDrawer() {
    ───────────────────────────────────────────────────────────── */
 export function PersistentPlayer() {
   const {
-    currentTrack, isPlaying, currentTime, duration,
+    currentTrack, isPlaying, isBuffering, currentTime, duration,
     volume, isMuted, isVisible, isShuffled, isQueueOpen,
     queue,
     togglePlay, next, prev, seek, setVolume, toggleMute,
@@ -298,7 +297,7 @@ export function PersistentPlayer() {
 
             <button onClick={togglePlay} aria-label={isPlaying ? "Pause" : "Play"}
               className="w-9 h-9 rounded-full flex items-center justify-center border border-[#c9a84c]/40 text-[#c9a84c] hover:border-[#c9a84c] hover:bg-[#c9a84c]/10 transition-all duration-200 shrink-0">
-              {isPlaying ? <PauseIcon /> : <PlayIcon />}
+              <PlayGlyph state={isBuffering && isPlaying ? "loading" : isPlaying ? "playing" : "idle"} size={15} />
             </button>
 
             <button onClick={next} disabled={!hasNext} aria-label="Next"

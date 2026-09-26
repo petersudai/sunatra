@@ -50,7 +50,7 @@ export default async function FavoritesPage() {
         {tracks.length === 0 ? (
           <p className="font-serif italic text-[#333330] text-sm">Nothing here yet.</p>
         ) : (
-          <div className="grid gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {tracks.map((track) => (
               <div key={track.id} className="bg-[#0a0a0a] border border-[#111] overflow-hidden hover:border-[#1e1e1e] transition-colors duration-300">
                 {track.embedUrl && (

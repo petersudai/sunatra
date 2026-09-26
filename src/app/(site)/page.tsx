@@ -99,11 +99,8 @@ export default async function HomePage() {
           <div className="hero-line h-px bg-[#c9a84c] mb-10" style={{ width: "3rem" }} />
 
           <h1
-            className="hero-name font-serif font-light text-[#f0ebe0] leading-[0.88] tracking-[-0.025em] mb-8"
-            style={{
-              fontSize: "clamp(4rem, 11vw, 11rem)",
-              textShadow: "0 2px 32px rgba(0,0,0,0.7)",
-            }}
+            className="hero-name font-serif font-light text-[#f0ebe0] leading-[0.88] tracking-[-0.025em] mb-8 text-[clamp(3rem,17vw,4rem)] md:text-[clamp(4rem,11vw,11rem)]"
+            style={{ textShadow: "0 2px 32px rgba(0,0,0,0.7)" }}
           >
             SUNATRA
           </h1>

@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { ITrack } from "@/types";
+import type { EarlyPlayState } from "@/lib/earlyPlay";
 
 const VOLUME_KEY = "sunatra-player-volume";
 
@@ -20,6 +21,7 @@ interface PlayerCtx {
   queue:        ITrack[];
   currentTrack: ITrack | null;
   isPlaying:    boolean;
+  isBuffering:  boolean;
   currentTime:  number;
   duration:     number;
   volume:       number;
@@ -81,6 +83,7 @@ export function PlayerProvider({
   const [queue,        setQueueState]  = useState<ITrack[]>(initialTracks);
   const [currentIndex, setIndex]       = useState(-1);
   const [isPlaying,    setIsPlaying]   = useState(false);
+  const [isBuffering,  setIsBuffering] = useState(false);
   const [currentTime,  setCurrentTime] = useState(0);
   const [duration,     setDuration]    = useState(0);
   const [isMuted,      setIsMuted]     = useState(false);
@@ -112,8 +115,15 @@ export function PlayerProvider({
     setDuration(0);
     audio.src   = track.audioUrl;
     audio.load();
-    audio.play().catch(console.error);
+    audio.play().catch((err) => {
+      // AbortError = a newer load/play superseded this one, not a real failure
+      if (err?.name === "AbortError") return;
+      console.error(err);
+      setIsPlaying(false);
+      setIsBuffering(false);
+    });
     setIsPlaying(true);
+    setIsBuffering(true); // cleared by the audio "playing" event
     setIsVisible(true);
     // Fire-and-forget — never block playback over a stat write
     fetch(`/api/tracks/${track.id}/play`, { method: "POST" }).catch(() => {});
@@ -132,25 +142,75 @@ export function PlayerProvider({
     return pos > 0 ? order[pos - 1] : -1;
   }, []);
 
-  /* ── create audio element once ── */
+  /* ── create (or adopt) the audio element once ──
+     On the shareable track page an inline script may already own an <audio>
+     element and be mid-playback (the user tapped before React hydrated).
+     Adopt that same element so playback never restarts or drops. */
   useEffect(() => {
+    const early = (window as unknown as { __sunatraEarly?: EarlyPlayState }).__sunatraEarly;
+
     const saved = parseFloat(localStorage.getItem(VOLUME_KEY) ?? "");
     const vol   = isNaN(saved) ? 1 : saved;
 
-    const audio  = new Audio();
+    const audio  = early?.audio ?? new Audio();
     audio.volume = vol;
     audio.preload = "metadata";
     audioRef.current = audio;
+    if (early) early.hydrated = true; // the inline click handler steps aside
 
-    audio.addEventListener("timeupdate",     () => setCurrentTime(audio.currentTime));
-    audio.addEventListener("loadedmetadata", () => setDuration(audio.duration));
-    audio.addEventListener("ended", () => {
+    const onTime    = () => setCurrentTime(audio.currentTime);
+    const onMeta    = () => setDuration(audio.duration);
+    const onWaiting = () => setIsBuffering(true);
+    const onPlaying = () => { setIsBuffering(false); setIsPlaying(true); };
+    // Follow the element: covers phone calls, OS media keys, headphones unplugged
+    const onPause   = () => { setIsBuffering(false); if (!audio.ended) setIsPlaying(false); };
+    const onError   = () => { setIsBuffering(false); setIsPlaying(false); };
+    const onEnded   = () => {
       const ni = getNextIdx(indexRef.current);
       if (ni !== -1) loadAndPlay(ni);
       else setIsPlaying(false);
-    });
+    };
 
-    return () => { audio.pause(); audio.src = ""; };
+    audio.addEventListener("timeupdate",     onTime);
+    audio.addEventListener("loadedmetadata", onMeta);
+    audio.addEventListener("waiting",        onWaiting);
+    audio.addEventListener("playing",        onPlaying);
+    audio.addEventListener("pause",          onPause);
+    audio.addEventListener("error",          onError);
+    audio.addEventListener("ended",          onEnded);
+
+    // Pick up a tap that happened before hydration
+    if (early?.started && early.track?.audioUrl) {
+      const t = early.track;
+      let idx = queueRef.current.findIndex((x) => x.id === t.id);
+      if (idx === -1) {
+        const nq = [...queueRef.current, t];
+        queueRef.current = nq;
+        setQueueState(nq);
+        idx = nq.length - 1;
+      }
+      rebuildPlayOrder(idx, false);
+      indexRef.current = idx;
+      setIndex(idx);
+      setIsVisible(true);
+      setIsPlaying(!audio.paused);
+      setIsBuffering(!audio.paused && audio.readyState < 3);
+      setCurrentTime(audio.currentTime);
+      setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
+    }
+
+    return () => {
+      audio.removeEventListener("timeupdate",     onTime);
+      audio.removeEventListener("loadedmetadata", onMeta);
+      audio.removeEventListener("waiting",        onWaiting);
+      audio.removeEventListener("playing",        onPlaying);
+      audio.removeEventListener("pause",          onPause);
+      audio.removeEventListener("error",          onError);
+      audio.removeEventListener("ended",          onEnded);
+      // An adopted element is left playing (dev StrictMode re-runs this effect)
+      if (!early) { audio.pause(); audio.src = ""; }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getNextIdx, loadAndPlay]);
 
   /* ── keyboard shortcuts ── */
@@ -333,7 +393,7 @@ export function PlayerProvider({
 
   return (
     <PlayerContext.Provider value={{
-      queue, currentTrack, isPlaying, currentTime, duration,
+      queue, currentTrack, isPlaying, isBuffering, currentTime, duration,
       volume, isMuted, isVisible, isShuffled, isQueueOpen,
       playTrack, setQueue, togglePlay, next, prev,
       seek, setVolume, toggleMute, toggleShuffle, setQueueOpen, dismiss,

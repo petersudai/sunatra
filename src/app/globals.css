@@ -30,6 +30,9 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Safety net: no page can ever be dragged sideways on a phone.
+       `clip` (unlike `hidden`) doesn't create a scroll container. */
+    overflow-x: clip;
   }
 
   /* Film grain overlay */
@@ -187,6 +190,18 @@
   50%       { opacity: 0.075; }
 }
 .wave-bar { animation: waveBreath 3s ease-in-out infinite; }
+
+/* ── Play glyph: play / pause / loading, switched by data-state ──
+   Pure CSS so the state can change before React has hydrated
+   (the shared-link page sets data-state from an inline script). */
+.pg { display: inline-flex; align-items: center; justify-content: center; }
+.pg > .pg-pause, .pg > .pg-spin { display: none; }
+.pg[data-state="playing"] > .pg-play,
+.pg[data-state="loading"] > .pg-play { display: none; }
+.pg[data-state="playing"] > .pg-pause { display: block; }
+.pg[data-state="loading"] > .pg-spin { display: block; }
+@keyframes pgSpin { to { transform: rotate(360deg); } }
+.pg-spin { animation: pgSpin 0.8s linear infinite; }
 
 /* ── Persistent player ────────────────────────────── */
 
